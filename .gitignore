@@ -1,3 +1,5 @@
 /.idea
 /.cpcache
 /.nrepl-port
+/classes
+/ktor-generator.jar

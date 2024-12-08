@@ -1,4 +1,5 @@
 (ns core
+  (:gen-class)
   (:require [clojure.edn :as edn])
   (:require [generators.model.generator :as model])
   (:require [generators.controller.generator :as controller])
@@ -20,15 +21,11 @@
 (defn get-ordering [conf]
   (mapv first (partition 2 (:modules conf))))
 
-(def output-dir "/Users/dudosyka/IdeaProjects/modules-generator/output/")
-(def template-dir "/Users/dudosyka/IdeaProjects/modules-generator/resources")
-
 (defn write-dir [dir modules-dir]
   (reduce (fn [acc v]
             (.mkdir (File. (str modules-dir (str acc "/" v))))
             (str acc "/" v)) "" (string/split (first dir) #"/"))
   (doseq [file (partition 2 (second dir))]
-    (println (str modules-dir (first dir) (first file)))
     (spit (str modules-dir (first dir) (first file)) (second file))))
 
 (defn replace-in-file [file old-text new-text]
@@ -41,16 +38,19 @@
           :when (.isFile file)]
     (replace-in-file file old-text new-text)))
 
-(defn parse [path]
-  (fs/delete-dir (str output-dir "proj"))
-  (let [conf (read-conf path)
+(defn parse [conf-path output]
+  (when (fs/file? output)
+    (throw (ex-info "Bad output path" {})))
+  (when (fs/exists? output)
+    (fs/delete-dir (str output "/proj")))
+  (let [conf (read-conf conf-path)
         project (:project conf)
         modules (->> conf
                      (get-modules)
                      (map #(into [] %))
                      (into {}))
-        kotlin-path (str output-dir "proj/src/main/kotlin/")
-        output (fs/copy-dir (str template-dir "/base") (str output-dir "proj"))
+        kotlin-path (str output "/proj/src/main/kotlin/")
+        output (fs/copy-dir (io/resource "base") (str output "/proj"))
         main-package-path (str kotlin-path (:package project))
         modules-dir (str main-package-path "/modules/")]
     (fs/rename (str kotlin-path "philarmonic") main-package-path)
@@ -62,11 +62,11 @@
             dao-files (dao/generate (second module) modules project)
             dto-files (dto/generate (second module) modules project)
             dirs (-> [controller-files]
-                     (conj service-files)
-                     (conj model-files)
-                     (conj dao-files)
-                     (conj dto-files))]
+                     (conj service-files model-files dao-files dto-files))]
         (doseq [dir dirs]
           (write-dir dir modules-dir))))))
 
-(parse "/Users/dudosyka/IdeaProjects/modules-generator/resources/conf.edn")
+(defn -main [& args]
+  (if (= (count args) 2)
+    (parse (fs/file (first args)) (fs/file (second args)))
+    (println "Error. \n Usage: app <path-to-conf.edn> <path-to-output-dir>")))
