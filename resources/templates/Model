@@ -1,0 +1,8 @@
+package {{:model-path}}.data.model
+
+{{:header}}
+import {{:package-name}}.utils.database.BaseIntIdTable
+
+object {{:model-name}}Model: BaseIntIdTable() {
+    {{:fields}}
+}

@@ -1,0 +1,86 @@
+package {{:service-path}}.service
+
+
+import {{:package-name}}.utils.kodein.KodeinService
+import org.kodein.di.DI
+import {{:create-dto-path}}
+import {{:update-dto-path}}
+import {{:dto-path}}
+import {{:list-dto-path}}
+{{:dao-model-imports}}
+
+class {{:model-name-capitalize}}Service(di: DI) : KodeinService(di) {
+    fun create(createDto: Create{{:function-type}} = transaction {
+        val created = {{:model-name-capitalize}}Dao.new {
+            {{:create-fields}}
+        }
+
+        created.toOutputDto()
+    }
+
+    fun getAll(): List<{{:model-name-capitalize}}ListDto> = transaction {
+        {{:get-all}}
+    }
+
+    fun getOne(id: Int): {{:model-name-capitalize}}Dto = transaction {
+        EventDao[id].toOutputDto()
+    }
+
+    fun update(id: Int, updateDto: Update{{:function-type}} = transaction {
+        val dao = {{:model-name-capitalize}}Dao[id]
+        {{:update-fields}}
+
+        dao.flush()
+
+        dao.toOutputDto()
+    }
+
+    fun delete(id: Int): Boolean {
+        val dao = {{:model-name-capitalize}}Dao[id]
+
+        dao.delete()
+
+        true
+    }
+
+    fun toggleVisible(id: Int): {{:model-name-capitalize}}Dto = transaction {
+        val dao = {{:model-name-capitalize}}Dao[id]
+
+        dao.visible = !dao.visible
+
+        dao.flush()
+
+        dao.toOutputDto()
+    }
+
+    fun positionUp(id: Int): {{:model-name-capitalize}}Dto = transaction {
+        val dao = {{:model-name-capitalize}}Dao[id]
+        if (dao.position == 0L)
+            return@transaction dao.toOutputDto()
+
+        val top = {{:position-query-prefix}}Model.position eq (dao.position - 1) }.firstOrNull() ?: throw BadRequestException("")
+        top.position += 1
+        dao.position -= 1
+
+        top.flush()
+        dao.flush()
+
+        dao.toOutputDto()
+    }
+
+    fun positionDown(id: Int): {{:model-name-capitalize}}Dto = transaction {
+        val allCount = {{:model-name-capitalize}}Dao.all().count()
+        val dao = {{:model-name-capitalize}}Dao[id]
+        if (dao.position == (allCount - 1))
+            return@transaction dao.toOutputDto()
+
+        val bottom = {{:position-query-prefix}}Model.position eq (dao.position + 1) }.firstOrNull() ?: throw BadRequestException("")
+        bottom.position -= 1
+        dao.position += 1
+
+        bottom.flush()
+        dao.flush()
+
+        dao.toOutputDto()
+    }
+}

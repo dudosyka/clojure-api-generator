@@ -1,0 +1,20 @@
+package {{:dao-path}}.data.dao
+
+
+import {{:package-name}}.utils.database.BaseIntEntity
+import {{:package-name}}.utils.database.BaseIntEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import {{:dto-path}}
+import {{:model-path}}
+{{:referenced-dao-import}}
+
+class {{:class-name}} {
+    companion object : {{:companion-object}}
+
+    {{:fields}}
+
+    override fun toOutputDto(): {{:model-name-capitalize}}Dto =
+    {{:model-name-capitalize}}Dto(
+        {{:builder}}
+    )
+}

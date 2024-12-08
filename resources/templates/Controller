@@ -1,0 +1,56 @@
+package {{:controller-path}}.controller
+
+
+import com.fleetmate.lib.exceptions.BadRequestException
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import {{:package-name}}.utils.kodein.KodeinController
+import io.ktor.server.routing.*
+import org.kodein.di.DI
+import org.kodein.di.instance
+import {{:create-dto-path}}
+import {{:update-dto-path}}
+import {{:service-path}}
+
+class {{:model-name-capitalize}}Controller(override val di: DI) : KodeinController() {
+
+    override fun Route.registerRoutes() {
+        route("{{:route}}") {
+            authorized("default") {
+                post {
+                    val createDto = call.receive<{{:model-name-capitalize}}CreateDto>()
+                    call.respond({{:model-name-lower}}Service.create(createDto))
+                }
+                get {
+                    call.respond({{:model-name-lower}}Service.getAll())
+                }
+                get(":id") {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond({{:model-name-lower}}Service.getOne(id))
+                }
+                patch(":id") {
+                    val updateDto = call.receive<{{:model-name-capitalize}}UpdateDto>()
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond(eventService.update(id, updateDto))
+                }
+                delete(":id") {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond({{:model-name-lower}}Service.delete(id))
+                }
+                patch("/visible/:id") {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond({{:model-name-lower}}Service.toggleVisible(id))
+                }
+                patch("/position/:id/up") {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond({{:model-name-lower}}Service.positionUp(id))
+                }
+                patch("/position/:id/down") {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Id must be Int")
+                    call.respond({{:model-name-lower}}Service.positionDown(id))
+                }
+            }
+        }
+    }
+}

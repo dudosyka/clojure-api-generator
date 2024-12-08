@@ -1,0 +1,186 @@
+{:project {:package "philarmonic"}
+ :modules [:sysconf {:name "SystemConfiguration"
+                     :route "/system"
+                     :create false
+                     :read_all false
+                     :read_one true
+                     :update true
+                     :delete false
+                     :full-dto {:phone ["name" :string]
+                                :email ["email" :string]
+                                :address ["address" :string]
+                                :city ["city" :string]
+                                :address_short ["addressShort" :string]
+                                :vk ["vk" :string]
+                                :telegram ["telegram" :string]
+                                :sound_cloud ["soundCloud" :string]}
+                     :list-dto []}
+
+           :partners {:name "Partners"
+                      :route "/partners"
+                      :create true
+                      :read_all true
+                      :read_one true
+                      :update true
+                      :delete true
+                      :full-dto {:name ["name" :string]
+                                 :image ["image" :string]
+                                 :visible ["visible" :bool]
+                                 :position ["position" :int]}
+                      :list-dto [[:id] [:name] [:image] [:visible] [:position]]}
+
+           :news {:name "News"
+                  :route "/news"
+                  :create true
+                  :read_all true
+                  :read_one true
+                  :update true
+                  :delete true
+                  :full-dto {:date ["date" :timestamp]
+                             :name ["name" :string]
+                             :image ["image" :string]
+                             :short-description ["shortDescription" :string]
+                             :description ["description" :string]
+                             :visible ["visible" :bool]
+                             :position ["position" :int]}
+                  :list-dto [[:id] [:date] [:name] [:visible] [:position]]}
+
+           :departments-contacts {:name "DepartmentsContacts"
+                                  :route "/department/contacts"
+                                  :create true
+                                  :read_all true
+                                  :read_one true
+                                  :update true
+                                  :delete true
+                                  :full-dto {:name ["name" :string]
+                                             :phone ["phone" :string]
+                                             :time-table ["timeTable" :string]
+                                             :visible ["visible" :bool]
+                                             :position ["position" :int]}
+                                  :list-dto [[:id] [:name] [:visible] [:position]]}
+           :people-contacts {:name "PeopleContacts"
+                             :route "/people/contacts"
+                             :create true
+                             :read_all true
+                             :read_one true
+                             :update true
+                             :delete true
+                             :full-dto {:surname ["surname" :string]
+                                        :io ["io" :string]
+                                        :email ["email" :string]
+                                        :photo ["photo" :string]
+                                        :work-position ["workPosition" :string]
+                                        :visible ["visible" :bool]
+                                        :position ["position" :int]}
+                             :list-dto [[:id] [:surname] [:visible] [:position]]}
+           :people-category {:name "PeopleCategory"
+                             :route "/people/category"
+                             :create true
+                             :read_all true
+                             :read_one true
+                             :update true
+                             :delete true
+                             :full-dto {:name ["name" :string]
+                                        :visible ["visible" :bool]
+                                        :position ["position" :int]}
+                             :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :people {:name "People"
+                    :route "/people"
+                    :create true
+                    :read_all true
+                    :read_one true
+                    :update true
+                    :delete true
+                    :full-dto {:name ["name" :string]
+                               :photo ["photo" :string]
+                               :work-position ["workPosition" :string]
+                               :category ["category" :string]
+                               :category-boss ["categoryBoss" :bool]
+                               :visible ["visible" :bool]
+                               :position ["position" :int]}
+                    :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :vacancy {:name "Vacancy"
+                     :route "/vacancy"
+                     :create true
+                     :read_all true
+                     :read_one true
+                     :update true
+                     :delete true
+                     :full-dto {:name ["name" :string]
+                                :image ["image" :string]
+                                :description ["description" :string]
+                                :visible ["visible" :bool]
+                                :position ["position" :int]}
+                     :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :children-programs {:name "ChildrenPrograms"
+                               :route "/children/programs"
+                               :create true
+                               :read_all true
+                               :read_one true
+                               :update true
+                               :delete true
+                               :full-dto {:name ["name" :string]
+                                          :image ["image" :string]
+                                          :description ["description" :string]
+                                          :visible ["visible" :bool]
+                                          :position ["position" :int]}
+                               :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :tag {:name "Tag"
+                 :route "/tag"
+                 :create true
+                 :read_all true
+                 :read_one true
+                 :update true
+                 :delete true
+                 :full-dto {:name ["name" :string]
+                            :visible ["visible" :bool]
+                            :position ["position" :int]}
+                 :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :platform {:name "Platform"
+                      :route "/platform"
+                      :create true
+                      :read_all true
+                      :read_one true
+                      :update true
+                      :delete true
+                      :full-dto {:name ["name" :string]
+                                 :address ["address" :string]
+                                 :visible ["visible" :bool]
+                                 :position ["position" :int]}
+                      :list-dto [[:id] [:name] [:address] [:visible] [:position]]}
+
+           :hall {:name "Hall"
+                  :route "/hall"
+                  :create true
+                  :read_all true
+                  :read_one true
+                  :update true
+                  :delete true
+                  :full-dto {:name ["name" :string]
+                             :platform ["platform" :relation :platform]
+                             :visible ["visible" :bool]
+                             :position ["position" :int]}
+                  :list-dto [[:id] [:name] [:visible] [:position]]}
+
+           :event {:name "Event"
+                   :route "/event"
+                   :create true
+                   :read_all true
+                   :read_one true
+                   :update true
+                   :delete true
+                   :full-dto {:date ["date" :timestamp]
+                              :name ["name" :string]
+                              :hall ["hall" :relation :hall]
+                              :price ["price" :double]
+                              :sold-out ["soldOut" :bool]
+                              :purchase-link ["purchaseLink" :string]
+                              :visible ["visible" :bool]
+                              :position ["position" :int]}
+                   :list-dto [[:id] [:date] [:name] [:hall :platform :name] [:hall :name] [:visible] [:position]]}]}
+
