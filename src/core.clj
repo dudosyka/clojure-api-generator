@@ -38,6 +38,15 @@
           :when (.isFile file)]
     (replace-in-file file old-text new-text)))
 
+(defn build-application-module-item [module-name package-name]
+  {:imports (str "import " package-name ".modules." (string/lower-case module-name) ".service." module-name "Service \n"
+                 "import " package-name ".modules." (string/lower-case module-name) ".controller." module-name "Controller \n"
+                 "import " package-name ".modules." (string/lower-case module-name) ".data.model." module-name "Model")
+   :service (str "        bindSingleton { " module-name "Service(it) }")
+   :controller (str "        bindSingleton { " module-name "Controller(it) }")
+   :model (str "        " module-name "Model,")})
+
+
 (defn parse [conf-path output]
   (when (fs/file? output)
     (throw (ex-info "Bad output path" {})))
@@ -50,6 +59,7 @@
                      (map #(into [] %))
                      (into {}))
         kotlin-path (str output "/proj/src/main/kotlin/")
+        application-path (str kotlin-path (:package project) "/Application.kt")
         output (fs/copy-dir (io/resource "base") (str output "/proj"))
         main-package-path (str kotlin-path (:package project))
         modules-dir (str main-package-path "/modules/")]
@@ -57,16 +67,40 @@
     (process-directory output #"philarmonic" (:package project))
     (doseq [module modules]
       (let [controller-files (controller/generate (second module) project)
-            service-files (service/generate (second module) modules project)
+            service-files (service/generate (first module) (second module) modules project)
             model-files (model/generate (second module) modules project)
             dao-files (dao/generate (second module) modules project)
             dto-files (dto/generate (second module) modules project)
             dirs (-> [controller-files]
                      (conj service-files model-files dao-files dto-files))]
         (doseq [dir dirs]
-          (write-dir dir modules-dir))))))
+          (write-dir dir modules-dir))))
+    (->> modules
+        (map #(-> % second :name))
+        (map (fn [module] (build-application-module-item module (:package project))))
+        (reduce (fn [v acc]
+                   (-> acc
+                         (assoc :imports (str (:imports acc) "\n" (:imports v)))
+                         (assoc :service (str (:service acc) "\n" (:service v)))
+                         (assoc :controller (str (:controller acc) "\n" (:controller v)))
+                         (assoc :model (str (:model acc) "\n" (:model v))))) {:imports ""
+                                                                              :service ""
+                                                                              :controller ""
+                                                                              :model ""})
+        ((fn [items]
+            (replace-in-file (fs/file application-path) "{{:imports-list}}" (:imports items))
+            (replace-in-file (fs/file application-path) "{{:services-list}}" (:service items))
+            (replace-in-file (fs/file application-path) "{{:controllers-list}}" (:controller items))
+            (replace-in-file (fs/file application-path) "{{:models-list}}" (:model items)))))))
+
+
+
+    ;(->> modules
+    ;     ))))
 
 (defn -main [& args]
   (if (= (count args) 2)
-    (parse (fs/file (first args)) (fs/file (second args)))
-    (println "Error. \n Usage: app <path-to-conf.edn> <path-to-output-dir>")))
+    (println (parse (fs/file (first args)) (fs/file (second args))))
+    (clojure.pprint/pprint "Error. \n Usage: app <path-to-conf.edn> <path-to-output-dir>")))
+
+(-main "resources/conf.edn" "output/proj")

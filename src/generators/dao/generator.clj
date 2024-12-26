@@ -10,7 +10,7 @@
           referenced-name (:name referenced)]
       (str "var " (first field) " by " referenced-name "Dao referencedOn " (:name module) "Model." (first field) "\n    "
            "var " (first field) "Id by " (:name module) "." (first field)))
-    (str "var " (first field) " by " (:name module) "." (first field))))
+    (str "var " (first field) " by " (:name module) "Model." (first field))))
 
 
 (defn generate-fields [module modules]

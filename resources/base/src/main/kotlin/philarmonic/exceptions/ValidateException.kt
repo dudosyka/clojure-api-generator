@@ -1,4 +1,4 @@
-package com.fleetmate.lib.exceptions
+package philarmonic.exceptions
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

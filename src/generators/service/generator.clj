@@ -74,7 +74,7 @@
     (str prefix "model." (:name module) "Model\n"
          prefix "dao." (:name module) "Dao")))
 
-(defn generate-additional-imports [module modules package-name]
+(defn generate-additional-imports [module module-key modules package-name]
   (let [full-dto-related (->> module :full-dto
                               (map second)
                               (filter #(> (count %) 2))
@@ -85,6 +85,7 @@
                               flatten)
         all-related (-> full-dto-related
                         (conj list-dto-related)
+                        (conj [module-key])
                         flatten
                         distinct)]
     (->> all-related
@@ -92,8 +93,9 @@
          (string/join "\n"))))
 
 
-(defn generate-service [module modules project]
-  (let [template (template)
+(defn generate-service [module-key modules project]
+  (let [module (get modules module-key)
+        template (template)
         package-name (:package project)
         module-path (str package-name ".modules." (string/lower-case (:name module)))
         replacements {:service-path module-path
@@ -107,13 +109,13 @@
                       :create-fields (generate-create-fields module modules)
                       :get-all (generate-get-all module modules)
                       :update-fields (generate-update-fields module modules)
-                      :dao-model-imports (generate-additional-imports module modules (:package project))
+                      :dao-model-imports (generate-additional-imports module module-key modules (:package project))
                       :position-query-prefix (str (:name module) "Dao.find { " (:name module))}]
     (string/replace template #"\{\{:(.+)\}\}"
                     (fn [[_ key]]
                       (get replacements (keyword key) "")))))
 
-(defn generate [module modules project]
+(defn generate [module-key module modules project]
   [(str (string/lower-case (:name module)) "/service/")
    [(str (:name module) "Service.kt")
-    (generate-service module modules project)]])
+    (generate-service module-key modules project)]])

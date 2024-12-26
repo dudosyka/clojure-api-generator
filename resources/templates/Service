@@ -1,6 +1,8 @@
 package {{:service-path}}.service
 
-
+import {{:package-name}}.exceptions.BadRequestException
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import {{:package-name}}.utils.kodein.KodeinService
 import org.kodein.di.DI
 import {{:create-dto-path}}
@@ -23,7 +25,7 @@ class {{:model-name-capitalize}}Service(di: DI) : KodeinService(di) {
     }
 
     fun getOne(id: Int): {{:model-name-capitalize}}Dto = transaction {
-        EventDao[id].toOutputDto()
+        {{:model-name-capitalize}}Dao[id].toOutputDto()
     }
 
     fun update(id: Int, updateDto: Update{{:function-type}} = transaction {
@@ -35,7 +37,7 @@ class {{:model-name-capitalize}}Service(di: DI) : KodeinService(di) {
         dao.toOutputDto()
     }
 
-    fun delete(id: Int): Boolean {
+    fun delete(id: Int): Boolean = transaction {
         val dao = {{:model-name-capitalize}}Dao[id]
 
         dao.delete()
@@ -55,7 +57,7 @@ class {{:model-name-capitalize}}Service(di: DI) : KodeinService(di) {
 
     fun positionUp(id: Int): {{:model-name-capitalize}}Dto = transaction {
         val dao = {{:model-name-capitalize}}Dao[id]
-        if (dao.position == 0L)
+        if (dao.position == 0)
             return@transaction dao.toOutputDto()
 
         val top = {{:position-query-prefix}}Model.position eq (dao.position - 1) }.firstOrNull() ?: throw BadRequestException("")
@@ -71,7 +73,7 @@ class {{:model-name-capitalize}}Service(di: DI) : KodeinService(di) {
     fun positionDown(id: Int): {{:model-name-capitalize}}Dto = transaction {
         val allCount = {{:model-name-capitalize}}Dao.all().count()
         val dao = {{:model-name-capitalize}}Dao[id]
-        if (dao.position == (allCount - 1))
+        if (dao.position == (allCount - 1).toInt())
             return@transaction dao.toOutputDto()
 
         val bottom = {{:position-query-prefix}}Model.position eq (dao.position + 1) }.firstOrNull() ?: throw BadRequestException("")

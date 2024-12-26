@@ -5,13 +5,12 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import philarmonic.conf.AppConf
 import philarmonic.modules.auth.controller.AuthController
-import philarmonic.modules.auth.data.model.UserLoginModel
 import philarmonic.modules.auth.service.AuthService
-import philarmonic.modules.user.model.UserModel
 import philarmonic.plugins.*
 import philarmonic.utils.database.DatabaseConnector
 import philarmonic.utils.kodein.bindSingleton
 import philarmonic.utils.kodein.kodeinApplication
+{{:imports-list}}
 
 fun main() {
     embeddedServer(Netty, port = AppConf.server.port, host = AppConf.server.host, module = Application::module)
@@ -26,16 +25,18 @@ fun Application.module() {
     configureSockets()
     configureExceptionFilter()
 
-    kodeinApplication("/auth") {
+    kodeinApplication("/") {
         // ----- Services ------
+        {{:services-list}}
         bindSingleton { AuthService(it) }
 
         // ----- Controllers ------
+        {{:controllers-list}}
         bindSingleton { AuthController(it) }
     }
 
     DatabaseConnector(
-        UserModel, UserLoginModel
+        {{:models-list}}
     ) {}
 
 }

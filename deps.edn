@@ -1,4 +1,4 @@
 {:deps {org.clojure/clojure {:mvn/version "1.12.0"}
-
         me.raynes/fs {:mvn/version "1.4.6"}}
- :paths ["src" "resources" "classes"]}
+ :paths ["src" "resources" "classes"]
+ :aliases {:repl {}}}

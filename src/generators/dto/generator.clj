@@ -27,7 +27,7 @@
   (let [template (template)
         fields (build-list-dto-fields module modules)
         dto-name (str (:name module) "List")
-        dto-path (str (:package project) ".modules." (string/lower-case (:name module)))
+        dto-path (str (:package project) ".modules." (string/lower-case (:name module)) ".data")
         replacements {:fields fields
                       :dto-name dto-name
                       :dto-path dto-path}]
@@ -42,7 +42,7 @@
                     (map #(apply field/generate %))
                     (reduce #(str %1 "\n" %2) (if add-id "val id: Int," "")))
         dto-name (str prefix (:name module))
-        dto-path (str (:package project) ".modules." (string/lower-case dto-name))
+        dto-path (str (:package project) ".modules." (string/lower-case (:name module)) ".data")
         replacements {:fields   fields
                       :dto-name dto-name
                       :dto-path dto-path}]
